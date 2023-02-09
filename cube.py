@@ -8,6 +8,9 @@ from OpenGL.GLU import *
 global level
 level = 0
 
+drawedges=False
+drawsurfaces=True
+
 vertices = [
     (1.0, -1.0, -1.0),
     (1.0, 1.0, -1.0),
@@ -63,27 +66,30 @@ edges = [
 
 
 def cube():
-    glBegin(GL_TRIANGLES)
-    x = 0
-    # Find the first Index of surfaces actually still existing, since there are older ones
-    y = real_surfaces[len(real_surfaces) - 1][0]
+    if drawsurfaces ==True:
+        glBegin(GL_TRIANGLES)
+        x = 0
+        # Find the first Index of surfaces actually still existing, since there are older ones
+        y = real_surfaces[len(real_surfaces) - 1][0]
 
-    for surface in surfaces[y:]:
-        for vertex in surface:
-            x += 1
-            if x == len(colors)-1:
-                x = 0
-            glColor3fv(colors[x])
-            glVertex3fv(vertices[vertex])
-    glEnd()
+        for surface in surfaces[y:]:
+            for vertex in surface:
+                x += 1
+                if x == len(colors)-1:
+                    x = 0
+                glColor3fv(colors[x])
+                glVertex3fv(vertices[vertex])
+        glEnd()
+    
+    if drawedges == True:
+        glBegin(GL_LINES)
+        for edge in edges:
+            for vertex in edge:
+                glColor3fv(colors[-1:])
+                glVertex3fv(vertices[vertex])
+        glEnd()
 
-
-    #glBegin(GL_LINES)
-    #for edge in edges:
-        #for vertex in edge:
-            #glColor3fv(colors[-1:])
-            #glVertex3fv(vertices[vertex])
-    #glEnd()
+    
 
 
 def calc_dist(x, y):
@@ -192,8 +198,10 @@ def mouse_control(x_rot, y_rot):
 
 def main():
     global level
-    global rotate
     global colors
+    global drawedges
+    global drawsurfaces
+
     width=800
     height=600
 
@@ -245,6 +253,12 @@ def main():
                 if event.key == pygame.K_c:
                     generate_colors(100)
 
+                if event.key == pygame.K_e:
+                    drawedges= not drawedges
+                
+                if event.key == pygame.K_s:
+                    drawsurfaces = not drawsurfaces
+
             mouse_state = pygame.mouse.get_pressed()
             if mouse_state[2]:  # Right mouse button is pressed
                 current_mouse_pos = pygame.mouse.get_pos()
@@ -254,6 +268,7 @@ def main():
                 glRotatef(mouse_dy, 1, 0, 0)  # Rotate the cube on x axis
                 last_mouse_pos = current_mouse_pos
 
+        
 
         glEnable(GL_CULL_FACE)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
